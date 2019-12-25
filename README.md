@@ -80,3 +80,19 @@ Saving image to doopy-kerfuffle-5780
 ```
 
 Otherwise you can do any of the customizations shown above!
+
+### Docker
+
+You can run the pre-generated Docker container too! You'll need to bind a folder
+on the host to save the image to.
+
+```bash
+$ mkdir data
+$ docker run -it -v $PWD/data/:/data vanessa/juliart generate --outfile /data/art.png
+```
+
+You can also build the image first if you like:
+
+```bash
+$ docker build -t vanessa/juliart .
+```
