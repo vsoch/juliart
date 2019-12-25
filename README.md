@@ -8,7 +8,7 @@ but intended for command line generation, and with options to customize colors
 based on holidays. The name "juliart" is also a play on word (Juliard) to hint
 at artsy things.
 
-![img/juliart.png](img/juliart.png)
+![img/juliart.png](https://raw.githubusercontent.com/vsoch/juliart/master/img/juliart.png)
 
 I'm customizing it to add more color palette choices (under development).
 
