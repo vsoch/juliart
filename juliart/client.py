@@ -61,16 +61,35 @@ def get_parser():
     generate.add_argument(
         "--color",
         dest="color",
+        choices=["random", "pattern", "glow"],
+        help="a color pattern to follow.",
+        type=str,
+        default="random",
+    )
+
+    generate.add_argument(
+        "--rgb",
+        dest="rgb",
+        help="a specific rbg color, in format R,G,B",
+        type=str,
+        default=None,
+    )
+
+    generate.add_argument(
+        "--theme",
+        dest="theme",
         choices=[
-            "random",
-            "pattern",
-            "glow",
             "christmas",
-            "hanukkah",
-            "valentine",
-            "halloween",
+            "easter",
             "fall",
+            "random",
+            "halloween",
+            "hanukkah",
             "spring",
+            "summer",
+            "thanksgiving",
+            "valentine",
+            "winter",
         ],
         help="a theme to color the art (defaults to random colors)",
         type=str,
@@ -104,7 +123,9 @@ def main():
 
     # Initialize the JuliaSet
     if args.command == "generate":
-        juliaset = JuliaSet(resolution=args.res, color=args.color)
+        juliaset = JuliaSet(
+            resolution=args.res, color=args.color, theme=args.theme, rgb=args.rgb
+        )
         juliaset.generate_image(zoom=args.zoom)
         juliaset.save_image(args.outfile)
     else:

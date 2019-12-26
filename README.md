@@ -55,7 +55,8 @@ And then customizations for the generate command:
 ```bash
 $ juliart generate --help
 usage: juliart generate [-h] [--force] [--outfile OUTFILE] [--res RES]
-                        [--color {random,pattern,glow,christmas,hanukkah,valentine,halloween,fall,spring}]
+                        [--color {random,pattern,glow}]
+                        [--theme {christmas,easter,fall,random,halloween,hanukkah,spring,summer,thanksgiving,valentine,winter}]
                         [--zoom ZOOM]
 
 optional arguments:
@@ -64,11 +65,12 @@ optional arguments:
   --outfile OUTFILE     the output file to save the image (defaults to
                         randomly generated png)
   --res RES             the resolution to generate (defaults to 1000)
-  --color {random,pattern,glow,christmas,hanukkah,valentine,halloween,fall,spring}
+  --color {random,pattern,glow}
+                        a color pattern to follow.
+  --theme {christmas,easter,fall,random,halloween,hanukkah,spring,summer,thanksgiving,valentine,winter}
                         a theme to color the art (defaults to random colors)
   --zoom ZOOM           the level of zoom (defaults to 1.8)
 ```
-
 
 If you use the defaults, it will generate a randomly named image in your
 present working directory.
@@ -76,10 +78,84 @@ present working directory.
 ```bash
 $ juliart generate
 Generating Julia Set...
-Saving image to doopy-kerfuffle-5780
+Saving image to doopy-kerfuffle-5780.png
 ```
 
 Otherwise you can do any of the customizations shown above!
+
+### Colors
+
+The three choices for colors are random, pattern, or glow, or setting your
+own RGB value.
+
+#### Random
+
+Random is the default, and the image at the top of the README here is generated using
+this setting. Take a look at more [more random examples](https://github.com/vsoch/juliart/tree/master/img/random).
+
+#### Pattern
+
+Pattern doesn't use a gradual gradient, but instead returns a hard boundary between
+a color (and black). 
+
+![img/pattern/delicious-lizard-8995.png](https://raw.githubusercontent.com/vsoch/juliart/master/img/pattern/delicious-lizard-8995.png)
+
+Take a look at more [more pattern examples](https://github.com/vsoch/juliart/tree/master/img/pattern) here.
+
+### RGB
+
+If you want complete control of the color, provide a comma separated list
+of RGB numbers as follows:
+
+```bash
+$ juliart generate --rgb 9,35,155
+```
+
+Note that this will also work with the `--color pattern` flag.
+
+#### Glow
+
+Glow means a dark background (black) with a color gradient. Here is an example:
+
+![img/glow/dinosaur-diablo-1189.png](https://raw.githubusercontent.com/vsoch/juliart/master/img/glow/dinosaur-diablo-1189.png)
+
+And is generated as follows:
+
+```bash
+juliart generate --color glow
+```
+
+See [more glow examples](https://github.com/vsoch/juliart/tree/master/img/glow).
+
+If you choose glow, this will overwrite the choice of a theme (discussed next).
+
+### Themes
+
+To get a little more variety in your choice of colors, you can select a theme! 
+
+```bash
+juliart generate --theme halloween
+juliart generate --theme christmas
+juliart generate --theme hanukkah
+juliart generate --theme thanksgiving
+juliart generate --theme valentine
+
+juliart generate --theme easter
+juliart generate --theme fall
+juliart generate --theme spring
+juliart generate --theme summer
+juliart generate --theme winter
+```
+
+For any of the commands above, you can also add `--color pattern` to flip the background
+from the theme color to be black. 
+
+```bash
+$ juliart generate --theme halloween --color pattern
+```
+
+Take a look at images in the [themes folder](https://github.com/vsoch/juliart/tree/master/img/pattern) 
+to get a sense of the color palettes.
 
 ### Docker
 
