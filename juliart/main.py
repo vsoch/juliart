@@ -11,6 +11,7 @@ Modified from https://github.com/Visual-mov/Colorful-Julia (MIT License)
 """
 
 from .namer import RobotNamer
+from .colors import get_theme_colors
 from PIL import Image, ImageDraw
 from random import randint, uniform
 
@@ -26,14 +27,18 @@ class JuliaSet:
        from https://github.com/Visual-mov/Colorful-Julia
     """
 
-    def __init__(self, resolution=1000, color="random", iterations=200):
+    def __init__(
+        self, resolution=1000, color="random", iterations=200, theme="random", rgb=None
+    ):
         self.ca = uniform(-1, 1)
         self.cb = uniform(-1, 1)
         self.res = (resolution, resolution)
         self.color = color
+        self.theme = theme
         self.iterations = iterations
         self.image = Image.new("RGB", self.res)
         self.draw = ImageDraw.Draw(self.image)
+        self.generate_colors(rgb)
 
     def __str__(self):
         return "[juliaset][resolution:%s][color:%s][iterations:%s]" % (
@@ -45,6 +50,26 @@ class JuliaSet:
     def __repr__(self):
         return self.__str__()
 
+    def generate_colors(self, rgb):
+        """Re-generate colorbias and glow.
+        """
+        # Themes are relevant for any color choice other than glow
+        if self.theme == "random":
+            if rgb is not None:
+                try:
+                    self.colorbias = tuple([int(x.strip()) for x in rgb.split(",")])
+                except:
+                    sys.exit("Error parsing %s, ensure is comma separated numbers.")
+            else:
+                self.colorbias = (
+                    self.rnd(20, 200),
+                    self.rnd(20, 200),
+                    self.rnd(20, 200),
+                )
+        else:
+            self.colorbias = get_theme_colors(self.theme)
+        self.glow = (self.rnd(0, 10), self.rnd(0, 10), self.rnd(0, 10))
+
     def generate_image(self, iterations=None, zoom=1.8):
         """Generate the image. If iterations is not provided, we use the default
 
@@ -52,10 +77,6 @@ class JuliaSet:
            ==========
            iterations: iterations per pixel.
         """
-        # Set random colors for single generation
-        self.colorbias = (self.rnd(20, 200), self.rnd(20, 200), self.rnd(20, 200))
-        self.glow = (self.rnd(0, 10), self.rnd(0, 10), self.rnd(0, 10))
-
         if not iterations:
             iterations = self.iterations
 
@@ -88,7 +109,7 @@ class JuliaSet:
     def generate_name(self):
         """Generate a random filename from the Robot Namer
         """
-        return RobotNamer().generate()
+        return "%s.png" % RobotNamer().generate()
 
     def colorize(self, i, iterations=None):
         """Based on the user selection, save with a pattern, random, or glowing color

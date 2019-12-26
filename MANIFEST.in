@@ -2,3 +2,4 @@ include README.md LICENSE
 recursive-include juliart *
 recursive-exclude .git *
 prune docs*
+prune img*
