@@ -35,6 +35,7 @@ jobs:
           export PATH="/usr/share/miniconda/bin:$PATH"
           source activate juliart
           python setup.py install
+          pip install imageio
 
       - name: Test random generator
         run: |

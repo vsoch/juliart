@@ -130,6 +130,8 @@ juliaset.save_image("/tmp/myimage.png")
 
 #### Animate
 
+![img/animate/butterscotch-plant-7505.gif](https://raw.githubusercontent.com/vsoch/juliart/master/img/animate/butterscotch-plant-7505.gif)
+
 You can inspect the parameters for the animation command as follows:
 
 ```bash
