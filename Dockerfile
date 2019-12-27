@@ -4,5 +4,6 @@ FROM continuumio/miniconda3
 
 WORKDIR /code
 COPY . /code
-RUN python setup.py install
+RUN python setup.py install && \
+    pip install .[animate]
 ENTRYPOINT ["juliart"]
