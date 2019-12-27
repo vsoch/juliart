@@ -35,6 +35,7 @@ jobs:
           export PATH="/usr/share/miniconda/bin:$PATH"
           source activate juliart
           python setup.py install
+          pip install imageio
 
       - name: Test random generator
         run: |
@@ -57,3 +58,8 @@ jobs:
           juliart generate --color random
           juliart generate --color pattern
           juliart generate --color glow
+
+      - name: Generate animation
+        run: |
+          export PATH="/usr/share/miniconda/bin:$PATH"
+          juliart animate

@@ -7,6 +7,8 @@ for easier viewing.
  - [glow](glow)
  - [pattern](pattern)
  - [random](random)
+ - [animate](animate)
+ - [animate-zoom](animate/zoom)
  - [themes](themes)
    - [christmas](themes/christmas)
    - [easter](themes/easter)
