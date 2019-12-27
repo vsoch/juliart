@@ -2,5 +2,6 @@ include README.md LICENSE
 recursive-include juliart *
 include juliart/fonts/*ttf
 recursive-exclude .git *
+prune juliart/__pycache__
 prune docs*
 prune img*
