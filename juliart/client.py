@@ -38,12 +38,11 @@ def get_parser():
     )
 
     generate.add_argument(
-        "--force",
-        "-f",
-        dest="force",
-        help="force generation of image if already exists.",
-        default=False,
-        action="store_true",
+        "--radius",
+        dest="radius",
+        help="the max radius to allow (default is 4)",
+        type=int,
+        default=4,
     )
 
     animate.add_argument(
@@ -108,6 +107,55 @@ def get_parser():
             dest="outfile",
             help="the output file to save the image (defaults to randomly generated png)",
             type=str,
+            default=None,
+        )
+
+        # Text on graphics
+        subparser.add_argument(
+            "--text",
+            dest="text",
+            help="write a string of text to bottom left corner",
+            type=str,
+            default=None,
+        )
+
+        subparser.add_argument(
+            "--fontsize",
+            dest="fontsize",
+            help="font size of text (if desired) defaults to 16",
+            type=int,
+            default=16,
+        )
+
+        subparser.add_argument(
+            "--xcoord",
+            dest="xcoord",
+            help="x coordinate for text (defaults to 0)",
+            type=int,
+            default=10,
+        )
+
+        subparser.add_argument(
+            "--ycoord",
+            dest="ycoord",
+            help="y coordinate for text (defaults to 0)",
+            type=int,
+            default=10,
+        )
+
+        subparser.add_argument(
+            "--ca",
+            dest="ca",
+            help="the a component of the c parameter",
+            type=float,
+            default=None,
+        )
+
+        subparser.add_argument(
+            "--cb",
+            dest="cb",
+            help="the b component of the c parameter",
+            type=float,
             default=None,
         )
 
@@ -195,11 +243,19 @@ def main():
         juliaset = JuliaSet(
             resolution=args.res,
             color=args.color,
+            ca=args.ca,
+            cb=args.cb,
             theme=args.theme,
             rgb=args.rgb,
             iterations=args.iters,
         )
-        juliaset.generate_image(zoom=args.zoom)
+        juliaset.generate_image(zoom=args.zoom, radius=args.radius)
+
+        # Add text, if the user wants to (args.text will be checked to be None)
+        juliaset.write_text(
+            args.text, fontsize=args.fontsize, xcoord=args.xcoord, ycoord=args.ycoord
+        )
+
         juliaset.save_image(args.outfile)
 
     elif args.command == "animate":
@@ -210,6 +266,8 @@ def main():
             color=args.color,
             theme=args.theme,
             rgb=args.rgb,
+            ca=args.ca,
+            cb=args.cb,
             cleanup=not args.skip_cleanup,
             iterations=args.iters,
             zoom_max=args.zoom_max,
@@ -220,9 +278,13 @@ def main():
             zoom=args.zoom,
             outfile=args.outfile,
             frames=args.frames,
-            randomize_x=not args.constant_a,
-            randomize_y=not args.constant_b,
+            randomize_a=not args.constant_a,
+            randomize_b=not args.constant_b,
             randomize_zoom=args.randomize_zoom,
+            text=args.text,
+            fontsize=args.fontsize,
+            xcoord=args.xcoord,
+            ycoord=args.ycoord,
         )
 
     else:

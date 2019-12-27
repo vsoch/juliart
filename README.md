@@ -66,11 +66,14 @@ You'll see there are two options: to generate, and to animate.
 #### Generate
 
 Customizations for the generate command generally include color or theme choices,
-and parameters.
+an optional text to print on the graphic, and parameters.
+
 
 ```bash
 $ juliart generate --help
-usage: juliart generate [-h] [--force] [--outfile OUTFILE] [--res RES]
+usage: juliart generate [-h] [--radius RADIUS] [--outfile OUTFILE]
+                        [--text TEXT] [--fontsize FONTSIZE] [--xcoord XCOORD]
+                        [--ycoord YCOORD] [--ca CA] [--cb CB] [--res RES]
                         [--iter ITERS] [--color {random,pattern,glow}]
                         [--rgb RGB]
                         [--theme {christmas,easter,fall,random,halloween,hanukkah,spring,summer,thanksgiving,valentine,winter}]
@@ -78,9 +81,15 @@ usage: juliart generate [-h] [--force] [--outfile OUTFILE] [--res RES]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --force, -f           force generation of image if already exists.
+  --radius RADIUS       the max radius to allow (default is 4)
   --outfile OUTFILE     the output file to save the image (defaults to
                         randomly generated png)
+  --text TEXT           write a string of text to bottom left corner
+  --fontsize FONTSIZE   font size of text (if desired) defaults to 16
+  --xcoord XCOORD       x coordinate for text (defaults to 0)
+  --ycoord YCOORD       y coordinate for text (defaults to 0)
+  --ca CA               the a component of the c parameter
+  --cb CB               the b component of the c parameter
   --res RES             the resolution to generate (defaults to 1000)
   --iter ITERS          the number of iterations per pixel (defaults to 200)
   --color {random,pattern,glow}
@@ -91,6 +100,8 @@ optional arguments:
   --zoom ZOOM           the level of zoom (defaults to 1.8)
 ```
 
+##### Defaults
+
 If you use the defaults, it will generate a randomly named image in your
 present working directory.
 
@@ -100,6 +111,54 @@ Generating Julia Set...
 Saving image to doopy-kerfuffle-5780.png
 ```
 
+##### C Parameters
+
+The values of ca and cb (the real and complex components of the c parameter
+in the Julia Set equation) are chosen at random, but you can select them
+to better understand how your choices influence the graphic generation:
+
+```bash
+juliart generate --ca 0.5 --cb 0.5
+```
+
+I also created a [small project](https://github.com/vsoch/juliart-grid/) that will visually show how your parameter selection
+influences the resulting image! You might want to give the output file a more meaningful name:
+
+```bash
+juliart generate --ca 0.5 --cb 0.5 --outfile ca-0.5-cb-0.5.png
+```
+
+And if you intend to compare the images, setting a consistent color is also 
+reasonable:
+
+```bash
+juliart generate --ca 0.5 --cb 0.5 --outfile ca-0.5-cb-0.5.png --rgb 90,12,10
+```
+
+For a bigger deep dive into this exercise (I was curious) see [Juliart Grid](https://github.com/vsoch/juliart-grid).
+
+
+##### Text
+
+As an alternative to file name (or just to have some fun!) you can generate
+an image with a custom message.
+
+```bash
+juliart generate --text "Dinosaurs are great!"
+```
+
+By default the text will be printed in the top left corner (coordinate 10,10)
+however you can adjust this to your liking:
+
+```bash
+$ juliart generate --text "Avocados are also great!" --xcoord 200 --ycoord 20
+```
+
+You can see both of these examples in the [text](img/text) examples folder.
+
+
+##### Zoom, Iterations, and Radius
+
 Otherwise you can do any of the customizations shown above! Try playing
 around with iterations, colors/themes, and zoom to see different effects.
 
@@ -108,9 +167,21 @@ $ juliart generate --zoom 3
 $ juliart generate --iter 100
 ```
 
-It's probably easiest to see how varying parameters (namely the zoom and those
-that aren't set by the client, the value of A and B around the circle) changes
-the graphic by using the animation command, discussed next.
+After looking over the equation to generate the JuliaSet for a while,
+I got the insight that if we increase the iterations value and modify the radious,
+ this will generate more detailed images. Here are some examples:
+
+```bash
+juliart generate --iter 1000 --radius 8
+```
+
+![img/random/frigid-kitty-0005.png](https://raw.githubusercontent.com/vsoch/juliart/master/img/random/frigid-kitty-0005.png)
+
+```bash
+juliart generate --iter 5000 --radius 10
+```
+
+This one takes longer, of course.
 
 To generate from within Python, here is a quick example:
 
@@ -139,7 +210,9 @@ $ juliart animate --help
 usage: juliart animate [-h] [--no-cleanup] [--constant-a] [--constant-b]
                        [--randomize-zoom] [--zoom-max ZOOM_MAX]
                        [--zoom-min ZOOM_MIN] [--frames FRAMES]
-                       [--outfile OUTFILE] [--res RES] [--iter ITERS]
+                       [--outfile OUTFILE] [--text TEXT] [--fontsize FONTSIZE]
+                       [--xcoord XCOORD] [--ycoord YCOORD] [--ca CA] [--cb CB]
+                       [--res RES] [--iter ITERS]
                        [--color {random,pattern,glow}] [--rgb RGB]
                        [--theme {christmas,easter,fall,random,halloween,hanukkah,spring,summer,thanksgiving,valentine,winter}]
                        [--zoom ZOOM]
@@ -156,6 +229,12 @@ optional arguments:
   --frames FRAMES       the number of frames to generate (default is 30)
   --outfile OUTFILE     the output file to save the image (defaults to
                         randomly generated png)
+  --text TEXT           write a string of text to bottom left corner
+  --fontsize FONTSIZE   font size of text (if desired) defaults to 16
+  --xcoord XCOORD       x coordinate for text (defaults to 0)
+  --ycoord YCOORD       y coordinate for text (defaults to 0)
+  --ca CA               the a component of the c parameter
+  --cb CB               the b component of the c parameter
   --res RES             the resolution to generate (defaults to 1000)
   --iter ITERS          the number of iterations per pixel (defaults to 200)
   --color {random,pattern,glow}
@@ -190,6 +269,21 @@ $ juliart animate --res 500 --iters 100
 The tradeoff is image quality. You'll also notice in the case of generating
 black pixels it takes slightly longer than white pixels (since white is 
 an absence of color).
+
+##### Text
+
+You can add a consistent message to all frames in an animation:
+
+```bash
+juliart animate --text "Dinosaurs are great!"
+```
+
+and customize the `--xcoord`, `--ycoord`, or `--fontsize` parameters as
+desired. See the [text](img/text) examples folder for an example. If you want
+to vary the text between frames, then you'll need to roll your own
+loop to generate the frames and then combine into an animation. An example
+is provided, the code at [Juliart Grid](https://github.com/vsoch/juliart-grid).
+
 
 ##### Cleanup
 
@@ -238,8 +332,8 @@ juliaset.generate_animation(
     zoom=args.zoom,
     outfile=args.outfile,
     frames=args.frames,
-    randomize_x=not args.constant_a,
-    randomize_y=not args.constant_b,
+    randomize_a=not args.constant_a,
+    randomize_b=not args.constant_b,
     randomize_zoom=args.randomize_zoom,
 )
 ```

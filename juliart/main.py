@@ -10,9 +10,10 @@ Modified from https://github.com/Visual-mov/Colorful-Julia (MIT License)
 
 """
 
-from .namer import RobotNamer
 from .colors import get_theme_colors
-from PIL import Image, ImageDraw
+from .namer import RobotNamer
+from .utils import check_restricted, get_font
+from PIL import Image, ImageDraw, ImageFont
 from random import randint, uniform, choice
 
 from math import sqrt
@@ -38,14 +39,19 @@ class JuliaSetAnimation:
         iterations=200,
         theme="random",
         rgb=None,
+        ca=None,
+        cb=None,
         cleanup=True,
         zoom_max=3,
         zoom_min=0,
     ):
 
         # Set initial values to randomize across
-        self.ca = uniform(-1, 1)
-        self.cb = uniform(-1, 1)
+        self.ca = ca or uniform(-1, 1)
+        self.cb = cb or uniform(-1, 1)
+
+        # Check that values are valid
+        self.check_cparams()
 
         # Ensure zooms are set to reasonable values
         self.zoom_max = max(3, zoom_max)
@@ -69,21 +75,25 @@ class JuliaSetAnimation:
     def __repr__(self):
         return self.__str__()
 
+    def check_cparams(self, min_range=-1.0, max_range=1.0):
+        """Ensure that we have floats that are between -1 and 1.
+        """
+        for value in [self.ca, self.cb]:
+            check_restricted(value, min_range, max_range)
+
     def calculate_range(self, value, frames, left_bound=-1, right_bound=1):
         """Given a starting value (value) calculate a range of values
            from that value to either a right or left bound. We choose the bound
            that presents the larger distance to generate greater variation. For
-           the circle arguments, this means between -1 and 1.
+           the c arguments, this means between -1 and 1.
         """
         distance_left = abs(left_bound - value)
         distance_right = abs(right_bound - value)
 
         if distance_right > distance_left:
-            # Distance from -1 to chosen value (increment will likely be negative)
-            increment = (left_bound - value) / frames
-        else:
-            # Distance from chosen value to end value of 1
             increment = (right_bound - value) / frames
+        else:
+            increment = (left_bound - value) / frames
 
         # Calculate the range
         rangex = [(value + x * increment) for x in range(frames)]
@@ -100,9 +110,13 @@ class JuliaSetAnimation:
         zoom=1.8,
         outfile=None,
         frames=30,
-        randomize_x=True,
-        randomize_y=True,
+        randomize_a=True,
+        randomize_b=True,
         randomize_zoom=False,
+        text=None,
+        fontsize=16,
+        xcoord=10,
+        ycoord=10,
     ):
         """Generate the image. If iterations is not provided, we use the default
 
@@ -119,15 +133,15 @@ class JuliaSetAnimation:
             sys.exit("imageio is required to animate. pip install juliart[animate]")
 
         # Calculate ranges to iterate across based on frames
-        rangey = [self.ca] * frames
-        rangex = [self.cb] * frames
+        rangea = [self.ca] * frames
+        rangeb = [self.cb] * frames
         zooms = [zoom] * frames
 
         # Vary argument only if desired
-        if randomize_x:
-            rangex = self.calculate_range(self.ca, frames)
-        if randomize_y:
-            rangey = self.calculate_range(self.cb, frames)
+        if randomize_a:
+            rangea = self.calculate_range(self.ca, frames)
+        if randomize_b:
+            rangeb = self.calculate_range(self.cb, frames)
         if randomize_zoom:
             zooms = self.calculate_range(
                 self.zoom, frames, left_bound=self.zoom_min, right_bound=self.zoom_max
@@ -164,15 +178,22 @@ class JuliaSetAnimation:
         with imageio.get_writer(outfile, mode="I") as writer:
             for i in range(frames):
                 juliaset = JuliaSet(
-                    resolution=self.resolution, iterations=self.iterations, quiet=True
+                    resolution=self.resolution,
+                    iterations=self.iterations,
+                    quiet=True,
+                    ca=rangea[i],
+                    cb=rangeb[i],
                 )
 
                 # Set pre-determined color and parameter values
                 juliaset.colorbias = colorbias
                 juliaset.glow = glow
-                juliaset.ca = rangex[i]
-                juliaset.cb = rangey[i]
                 juliaset.generate_image(zoom=zooms[i])
+
+                # Do we want to add text?
+                juliaset.write_text(
+                    text, fontsize=fontsize, xcoord=xcoord, ycoord=ycoord
+                )
 
                 # We could easily hand the image data to writer, but this preserves frames if desired
                 pngfile = os.path.join(tmpdir, "%s-%s.png" % (prefix, i))
@@ -208,9 +229,14 @@ class JuliaSet:
         theme="random",
         rgb=None,
         quiet=False,
+        ca=None,
+        cb=None,
     ):
-        self.ca = uniform(-1, 1)
-        self.cb = uniform(-1, 1)
+        # Check that values are valid
+        self.ca = ca or uniform(-1, 1)
+        self.cb = cb or uniform(-1, 1)
+        self.check_cparams()
+
         self.quiet = quiet
         self.res = (resolution, resolution)
         self.color = color
@@ -219,6 +245,12 @@ class JuliaSet:
         self.image = Image.new("RGB", self.res)
         self.draw = ImageDraw.Draw(self.image)
         self.generate_colors(rgb)
+
+    def check_cparams(self, min_range=-1.0, max_range=1.0):
+        """Ensure that we have floats that are between -1 and 1.
+        """
+        for value in [self.ca, self.cb]:
+            check_restricted(value, min_range, max_range)
 
     def __str__(self):
         return "[juliaset][resolution:%s][color:%s][iterations:%s]" % (
@@ -256,7 +288,7 @@ class JuliaSet:
         if not self.quiet:
             print(message)
 
-    def generate_image(self, iterations=None, zoom=1.8):
+    def generate_image(self, iterations=None, zoom=1.8, radius=4):
         """Generate the image. If iterations is not provided, we use the default
 
            Parameters
@@ -267,25 +299,47 @@ class JuliaSet:
             iterations = self.iterations
 
         self.print("Generating Julia Set...")
-        for x in range(self.res[0]):
-            for y in range(self.res[1]):
+
+        # Iterating through pixels in the image (the resolution)
+        # See https://en.wikipedia.org/wiki/Julia_set#Pseudocode and
+        for x in range(self.res[0]):  # real axis
+            for y in range(self.res[1]):  # imaginary axis
+
+                # Scaled x and y coordinate of pixels
                 za = self.translate(x, 0, self.res[0], -zoom, zoom)
                 zb = self.translate(y, 0, self.res[1], -zoom, zoom)
                 i = 0
+
+                # iterations are the number of recursions of the formula we want to do
+                # we consider za the real component, and zb the imaginary component
+                # see https://www.youtube.com/watch?v=fAsaSkmbF5s for how equations derived
                 while i < iterations:
                     tmp = 2 * za * zb
                     za = za * za - zb * zb + self.ca
                     zb = tmp + self.cb
-                    if sqrt(za * za + zb * zb) > 4:
+                    if sqrt(za * za + zb * zb) > radius:
                         break
                     i += 1
+
+                # When we get here, we have a value of i (when the loop broke)
+                # if i isn't the max iterations, we color it. Otherwise, it's black
                 self.draw.point(
                     (x, y),
                     self.colorize(i, iterations) if i != iterations else (0, 0, 0),
                 )
 
+    def write_text(self, text, fontsize=16, rgb=(255, 255, 255), xcoord=10, ycoord=10):
+        """Given a text string, font size, and output coordinates, write text
+           onto the image. The default font provided with the package 
+        """
+        if text not in [None, ""]:
+            fontfile = get_font("OpenSans-Regular.ttf")
+            font = ImageFont.truetype(fontfile, fontsize)
+            self.draw.text((xcoord, ycoord), text, rgb, font=font)
+
     def save_image(self, outfile=None):
-        """Save the image to an output file, if provided.
+        """Save the image to an output file, if provided. Optionally add some
+           text to it.
         """
         if not outfile:
             outfile = "%s.png" % self.generate_name()
