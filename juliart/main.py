@@ -13,7 +13,7 @@ Modified from https://github.com/Visual-mov/Colorful-Julia (MIT License)
 from .namer import RobotNamer
 from .colors import get_theme_colors
 from PIL import Image, ImageDraw
-from random import randint, uniform
+from random import randint, uniform, choice
 
 from math import sqrt
 import os
@@ -38,7 +38,6 @@ class JuliaSetAnimation:
         iterations=200,
         theme="random",
         rgb=None,
-        outfile=None,
         cleanup=True,
         zoom_max=3,
         zoom_min=0,
@@ -52,9 +51,6 @@ class JuliaSetAnimation:
         self.zoom_max = max(3, zoom_max)
         self.zoom_min = max(0, zoom_min)
         self.zoom = uniform(self.zoom_min, self.zoom_max)
-
-        # Booleans to determine if we do!
-        self.outfile = outfile
         self.cleanup = cleanup
 
         self.resolution = resolution
@@ -73,9 +69,7 @@ class JuliaSetAnimation:
     def __repr__(self):
         return self.__str__()
 
-    def calculate_range(
-        self, value, frames, left_bound=-1, right_bound=1, increasing=True
-    ):
+    def calculate_range(self, value, frames, left_bound=-1, right_bound=1):
         """Given a starting value (value) calculate a range of values
            from that value to either a right or left bound. We choose the bound
            that presents the larger distance to generate greater variation. For
@@ -94,8 +88,8 @@ class JuliaSetAnimation:
         # Calculate the range
         rangex = [(value + x * increment) for x in range(frames)]
 
-        # reverse if the increment was negative and we care about direction
-        if increment < 0 and increasing is True:
+        # reverse if the increment was negative and we randomly decide to
+        if increment < 0 and choice([1, 2]) == 1:
             rangex.reverse()
 
         return rangex
@@ -104,6 +98,7 @@ class JuliaSetAnimation:
         self,
         iterations=None,
         zoom=1.8,
+        outfile=None,
         frames=30,
         randomize_x=True,
         randomize_y=True,
@@ -153,20 +148,24 @@ class JuliaSetAnimation:
         # Create temporary directory to work in
         tmpdir = tempfile.mkdtemp()
 
-        outfile = "%s.gif" % (prefix, i)
-        if self.outfile:
-            outfile = self.outfile
+        if not outfile:
+            outfile = "%s.gif" % prefix
 
         # Output file must be a gif
         if not outfile.endswith(".gif"):
             outfile = "%s.gif" % os.path.splitext(outfile)[0]
 
+        print("Generating Julia Set Animation...")
+
+        # Keep list of images, we will add them in reverse to loop the animation
+        images = []
+
         # Go through each frame to generate julia set, write animation as we go
         with imageio.get_writer(outfile, mode="I") as writer:
             for i in range(frames):
                 juliaset = JuliaSet(
-                    resolution=self.resolution, iterations=self.iterations
-                )  # , quiet=True)
+                    resolution=self.resolution, iterations=self.iterations, quiet=True
+                )
 
                 # Set pre-determined color and parameter values
                 juliaset.colorbias = colorbias
@@ -177,13 +176,21 @@ class JuliaSetAnimation:
 
                 # We could easily hand the image data to writer, but this preserves frames if desired
                 pngfile = os.path.join(tmpdir, "%s-%s.png" % (prefix, i))
+                images.append(pngfile)
                 juliaset.save_image(pngfile)
-                image = imageio.imread(pngfile)
-                writer.append_data(image)
+                writer.append_data(imageio.imread(pngfile))
+
+            # Now add the images back (in reverse) to create loop
+            while images:
+                pngfile = images.pop()
+                writer.append_data(imageio.imread(pngfile))
 
         if self.cleanup:
             print("Cleaning up %s" % tmpdir)
             shutil.rmtree(tmpdir)
+        else:
+            print("Intermediate .png files are in: %s" % tmpdir)
+        print("Animation saved to %s" % outfile)
 
 
 class JuliaSet:

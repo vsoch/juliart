@@ -10,7 +10,7 @@ with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 """
 
-from juliart.main import JuliaSet, JuliaSetAnimate
+from juliart.main import JuliaSet, JuliaSetAnimation
 import juliart
 import argparse
 import sys
@@ -34,7 +34,7 @@ def get_parser():
 
     generate = subparsers.add_parser("generate", help="generate a Julia Set image")
     animate = subparsers.add_parser(
-        "generate", help="create a Julia Set animation (gif)"
+        "animate", help="create a Julia Set animation (gif)"
     )
 
     generate.add_argument(
@@ -205,20 +205,20 @@ def main():
     elif args.command == "animate":
 
         # Takes similar args to JuliaSet, but also animation preferences
-        juliaset = JuliaSetAnimate(
+        juliaset = JuliaSetAnimation(
             resolution=args.res,
             color=args.color,
             theme=args.theme,
             rgb=args.rgb,
-            outfile=args.outfile,
             cleanup=not args.skip_cleanup,
             iterations=args.iters,
             zoom_max=args.zoom_max,
             zoom_min=args.zoom_min,
         )
 
-        juliaset.generate_animate(
+        juliaset.generate_animation(
             zoom=args.zoom,
+            outfile=args.outfile,
             frames=args.frames,
             randomize_x=not args.constant_a,
             randomize_y=not args.constant_b,
