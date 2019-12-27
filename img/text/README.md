@@ -5,4 +5,4 @@
 
 Text can be added to an animation too.
 
-![doopy-egg-2775.png](doopy-egg-2775.png)
+![doopy-egg-2775.gif](doopy-egg-2775.gif)
