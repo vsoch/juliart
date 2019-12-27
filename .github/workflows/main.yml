@@ -41,6 +41,7 @@ jobs:
         run: |
           export PATH="/usr/share/miniconda/bin:$PATH"
           juliart generate
+          juliart generate --iter 1000 --radius 8
 
       - name: Generate with rgb color
         run: |
@@ -58,6 +59,12 @@ jobs:
           juliart generate --color random
           juliart generate --color pattern
           juliart generate --color glow
+
+      - name: Generate with custom coordinate or message
+        run: |
+          export PATH="/usr/share/miniconda/bin:$PATH"
+          juliart generate --ca -0.5 --cb 0.5
+          juliart generate --text "Dinosaurs are great!"
 
       - name: Generate animation
         run: |
