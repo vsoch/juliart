@@ -311,7 +311,6 @@ def main():
             randomize_zoom=args.randomize_zoom,
             text=args.text,
             font=font,
-            alpha=args.font_alpha,
             fontsize=args.fontsize,
             xcoord=args.xcoord,
             ycoord=args.ycoord,
