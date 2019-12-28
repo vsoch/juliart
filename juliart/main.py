@@ -115,6 +115,7 @@ class JuliaSetAnimation:
         randomize_zoom=False,
         text=None,
         fontsize=16,
+        fontalpha=100,
         font="OpenSans-Regular.ttf",
         xcoord=10,
         ycoord=10,
@@ -193,7 +194,12 @@ class JuliaSetAnimation:
 
                 # Do we want to add text?
                 juliaset.write_text(
-                    text, fontsize=fontsize, xcoord=xcoord, ycoord=ycoord, font=font
+                    text,
+                    fontsize=fontsize,
+                    xcoord=xcoord,
+                    ycoord=ycoord,
+                    font=font,
+                    rgb=(255, 255, 255, fontalpha),
                 )
 
                 # We could easily hand the image data to writer, but this preserves frames if desired

@@ -142,7 +142,7 @@ def get_parser():
             dest="font_alpha",
             help="font transparency (defaults to 1)",
             type=int,
-            default=1,
+            default=100,
         )
 
         subparser.add_argument(
@@ -311,6 +311,7 @@ def main():
             randomize_zoom=args.randomize_zoom,
             text=args.text,
             font=font,
+            fontalpha=args.font_alpha,
             fontsize=args.fontsize,
             xcoord=args.xcoord,
             ycoord=args.ycoord,
