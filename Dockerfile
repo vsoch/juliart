@@ -1,6 +1,6 @@
 FROM continuumio/miniconda3
 
-# docker build -t vanessa/juliart .
+# docker build -t quay.io/vanessa/juliart .
 
 WORKDIR /code
 COPY . /code

@@ -15,6 +15,15 @@ I've done my best so that the default parameters produce (what I think to be)
 the most random and pretty images. You can of course tweak the parameters
 to your liking, discussed below!
 
+## Examples and Documentation
+
+If you want to jump in to examples, see these repositories:
+
+ - [vsoch/juliart-says](https://github.com/vsoch/juliart-says): write Markov generated (or raw) text onto a Julia Set image
+ - [vsoch/juliart-grid](https://github.com/vsoch/juliart-grid): a grid of Julia Sets to show indexing into the Mandelbrot Set
+ - [vsoch.github.io](https://vsoch.github.io/2019/juliart/): A writeup of Juliart, explaining Julia and Mandelbrot sets.
+
+
 ## Usage
 
 ### Install
@@ -154,7 +163,14 @@ however you can adjust this to your liking:
 $ juliart generate --text "Avocados are also great!" --xcoord 200 --ycoord 20
 ```
 
-You can see both of these examples in the [text](img/text) examples folder.
+You can also change the font from OpenSans-Regular.ttf to Pacifico-Regular.ttf,
+and choose an alpha (transparency).
+
+```bash
+$ juliart generate --text "Avocados!" --fontsize 30 --font-alpha 90 --font Pacifico-Regular
+```
+
+You can see all of these examples in the [text](img/text) examples folder.
 
 
 ##### Zoom, Iterations, and Radius
@@ -183,6 +199,8 @@ juliart generate --iter 5000 --radius 10
 
 This one takes longer, of course.
 
+##### Interactive Python
+
 To generate from within Python, here is a quick example:
 
 ```python
@@ -197,6 +215,31 @@ juliaset = JuliaSet(
 )
 juliaset.generate_image(zoom=1.8)
 juliaset.save_image("/tmp/myimage.png")
+```
+
+If you want to add text, before the save_image do:
+
+```python
+juliaset.write_text(
+    text,
+    fontsize=16,
+    xcoord=10,
+    ycoord=10,
+)
+```
+
+By default, the text is white. You can change the color (and add a transparency, alpha layer)
+like:
+
+
+```python
+juliaset.write_text(
+    text,
+    fontsize=16,
+    xcoord=10,
+    ycoord=10,
+    rgb=(255, 255, 255, 15),
+)
 ```
 
 #### Animate
@@ -420,14 +463,16 @@ on the host to save the image to.
 
 ```bash
 $ mkdir data
-$ docker run -it -v $PWD/data/:/data vanessa/juliart generate --outfile /data/art.png
+$ docker run -it -v $PWD/data/:/data quay.io/vanessa/juliart generate --outfile /data/art.png
 ```
 
 You can also build the image first if you like:
 
 ```bash
-$ docker build -t vanessa/juliart .
+$ docker build -t quay.io/vanessa/juliart .
 ```
+
+The images are provided on [quay.io/vanessa/juliart](https://quay.io/repository/vanessa/juliart).
 
 ## Support
 

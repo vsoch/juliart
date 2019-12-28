@@ -115,6 +115,7 @@ class JuliaSetAnimation:
         randomize_zoom=False,
         text=None,
         fontsize=16,
+        font="OpenSans-Regular.ttf",
         xcoord=10,
         ycoord=10,
     ):
@@ -192,7 +193,7 @@ class JuliaSetAnimation:
 
                 # Do we want to add text?
                 juliaset.write_text(
-                    text, fontsize=fontsize, xcoord=xcoord, ycoord=ycoord
+                    text, fontsize=fontsize, xcoord=xcoord, ycoord=ycoord, font=font
                 )
 
                 # We could easily hand the image data to writer, but this preserves frames if desired
@@ -242,7 +243,7 @@ class JuliaSet:
         self.color = color
         self.theme = theme
         self.iterations = iterations
-        self.image = Image.new("RGB", self.res)
+        self.image = Image.new("RGBA", self.res)
         self.draw = ImageDraw.Draw(self.image)
         self.generate_colors(rgb)
 
@@ -328,14 +329,58 @@ class JuliaSet:
                     self.colorize(i, iterations) if i != iterations else (0, 0, 0),
                 )
 
-    def write_text(self, text, fontsize=16, rgb=(255, 255, 255), xcoord=10, ycoord=10):
+    def write_text(
+        self,
+        text,
+        fontsize=16,
+        rgb=(255, 255, 255),
+        xcoord=10,
+        ycoord=10,
+        font="OpenSans-Regular.ttf",
+    ):
         """Given a text string, font size, and output coordinates, write text
            onto the image. The default font provided with the package 
         """
         if text not in [None, ""]:
-            fontfile = get_font("OpenSans-Regular.ttf")
+            import textwrap
+
+            # Break image into width and height
+            width, height = self.res
+            fontfile = get_font(font)
             font = ImageFont.truetype(fontfile, fontsize)
-            self.draw.text((xcoord, ycoord), text, rgb, font=font)
+            lines = textwrap.wrap(text)
+
+            draw = self.draw
+            image = self.image
+
+            # If the user provides a transparency value, we need to write font to separate layer
+            if len(rgb) > 3:
+                text = Image.new("RGBA", self.image.size, (255, 255, 255, 0))
+                draw = ImageDraw.Draw(text)
+
+            # Keep track of y coordinate (height)
+            total_height = ycoord
+            for line in lines:
+
+                # Calculate a specific width and height for the line
+                w, h = font.getsize(line)
+
+                # If we have space, honor the x coordinate, otherwise center
+                xstart = (width - w) / 2
+                if width - xcoord > w:
+                    xstart = xcoord
+
+                # Don't draw if we go over total height
+                if total_height >= height:
+                    break
+                draw.text((xstart, total_height), line, font=font, fill=rgb)
+                total_height += h
+
+            if len(rgb) > 3:
+                self.image = Image.alpha_composite(self.image, text)
+            else:
+                self.image = image
+                self.draw = draw
 
     def save_image(self, outfile=None):
         """Save the image to an output file, if provided. Optionally add some
