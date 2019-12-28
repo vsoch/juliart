@@ -7,6 +7,7 @@ and **Merged pull requests**.
 The versions coincide with releases on pypi.
 
 ## [0.0.x](https://github.com/vsoch/juliart/tree/master) (0.0.x)
+ - bug that default alpha should be 100 (not 1) (0.0.15)
  - automated builds to quay.io and word wrap for longer text (0.0.14)
  - adding control for ca and cb parameters (0.0.13)
  - JuliaSetAnimation class to generation animations (0.0.12)
