@@ -8,13 +8,13 @@ with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 """
 
-__version__ = "0.0.13"
+__version__ = "0.0.14"
 AUTHOR = "Vanessa Sochat"
 AUTHOR_EMAIL = "vsochat@stanford.edu"
 NAME = "juliart"
 PACKAGE_URL = "http://www.github.com/vsoch/juliart"
-KEYWORDS = "julia, art, holidays, generator"
-DESCRIPTION = "Command line tool for generating Julia "
+KEYWORDS = "julia, julia set, art, holidays, generator, animation"
+DESCRIPTION = "Command line tool for generating Julia Set graphics and animations"
 LICENSE = "LICENSE"
 
 ################################################################################

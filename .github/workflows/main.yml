@@ -66,7 +66,18 @@ jobs:
           juliart generate --ca -0.5 --cb 0.5
           juliart generate --text "Dinosaurs are great!"
 
+      - name: Generate with custom font
+        run: |
+          export PATH="/usr/share/miniconda/bin:$PATH"
+          juliart generate --font-alpha 90 --font Pacifico-Regular
+
       - name: Generate animation
         run: |
           export PATH="/usr/share/miniconda/bin:$PATH"
           juliart animate
+
+      - name: Test Docker Build
+        run: |
+            docker build -t quay.io/vanessa/juliart .
+            DOCKER_TAG=$(docker run quay.io/vanessa/juliart:latest --version)
+            echo "Docker tag for deploy will be: ${DOCKER_TAG}"

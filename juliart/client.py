@@ -110,7 +110,8 @@ def get_parser():
             default=None,
         )
 
-        # Text on graphics
+        ## Text
+
         subparser.add_argument(
             "--text",
             dest="text",
@@ -125,6 +126,23 @@ def get_parser():
             help="font size of text (if desired) defaults to 16",
             type=int,
             default=16,
+        )
+
+        subparser.add_argument(
+            "--font",
+            dest="font",
+            help="choice of font (defaults to open sans)",
+            type=str,
+            choices=["OpenSans-Regular", "Pacifico-Regular"],
+            default="OpenSans-Regular",
+        )
+
+        subparser.add_argument(
+            "--font-alpha",
+            dest="font_alpha",
+            help="font transparency (defaults to 1)",
+            type=int,
+            default=1,
         )
 
         subparser.add_argument(
@@ -238,6 +256,11 @@ def main():
         print(juliart.__version__)
         sys.exit(0)
 
+    # If the provided font doesn't end in ttf
+    font = args.font
+    if not args.font.endswith(".ttf"):
+        font = "%s.ttf" % (font)
+
     # Initialize the JuliaSet
     if args.command == "generate":
         juliaset = JuliaSet(
@@ -253,7 +276,12 @@ def main():
 
         # Add text, if the user wants to (args.text will be checked to be None)
         juliaset.write_text(
-            args.text, fontsize=args.fontsize, xcoord=args.xcoord, ycoord=args.ycoord
+            args.text,
+            fontsize=args.fontsize,
+            xcoord=args.xcoord,
+            ycoord=args.ycoord,
+            font=font,
+            rgb=(255, 255, 255, args.font_alpha),
         )
 
         juliaset.save_image(args.outfile)
@@ -282,6 +310,8 @@ def main():
             randomize_b=not args.constant_b,
             randomize_zoom=args.randomize_zoom,
             text=args.text,
+            font=font,
+            alpha=args.font_alpha,
             fontsize=args.fontsize,
             xcoord=args.xcoord,
             ycoord=args.ycoord,
