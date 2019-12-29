@@ -257,7 +257,7 @@ def main():
         sys.exit(0)
 
     # If the provided font doesn't end in ttf
-    if hasattr(args, 'font'):
+    if hasattr(args, "font"):
         font = args.font
         if not args.font.endswith(".ttf"):
             font = "%s.ttf" % (font)
