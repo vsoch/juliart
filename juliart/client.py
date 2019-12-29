@@ -257,9 +257,10 @@ def main():
         sys.exit(0)
 
     # If the provided font doesn't end in ttf
-    font = args.font
-    if not args.font.endswith(".ttf"):
-        font = "%s.ttf" % (font)
+    if hasattr(args, 'font'):
+        font = args.font
+        if not args.font.endswith(".ttf"):
+            font = "%s.ttf" % (font)
 
     # Initialize the JuliaSet
     if args.command == "generate":
